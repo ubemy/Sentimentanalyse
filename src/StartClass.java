@@ -2,8 +2,8 @@
 public class StartClass {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		Lexicon lex = new Lexicon();
+		lex.print();
 	}
 
 }
