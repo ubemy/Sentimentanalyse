@@ -2,8 +2,8 @@
 public class StartClass {
 
 	public static void main(String[] args) {
-		Lexicon lex = new Lexicon();
-		lex.print();
+		LexiconPolarityCalculator cal = new LexiconPolarityCalculator();
+		System.out.println(cal.getPolarityForWord("agileren"));
 	}
 
 }
