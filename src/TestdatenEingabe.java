@@ -46,7 +46,7 @@ public class TestdatenEingabe {
 		}
 		catch(Exception ex)
 		{
-			
+			System.out.println(ex.getMessage());
 		}
 	}
 	
