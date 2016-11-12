@@ -12,6 +12,16 @@ public class LexiconPolarityCalculator {
 	public int getPolarityForSentence(String sentence)
 	{
 		int ret = 0;
+		int wordCounter = 0;
+		int temp = 0;
+		
+		for(String s : sentence.split(" "))
+		{
+			temp += getPolarityForWord(s);
+			wordCounter++;
+		}
+		
+		ret = temp / wordCounter;
 		
 		return ret;
 	}
