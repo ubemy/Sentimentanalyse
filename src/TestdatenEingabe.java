@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
@@ -33,7 +35,8 @@ public class TestdatenEingabe {
 			{
 				for(File file : fileArray)
 				{
-					BufferedReader br = new BufferedReader(new FileReader(file.getAbsolutePath()));
+					//BufferedReader br = new BufferedReader(new FileReader(file.getAbsolutePath()));
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file.getAbsolutePath()), "UTF-8"));
 				    while ((line = br.readLine()) != null) {
 				    	listEntry = new ArrayList<String>();
 				    	listEntry.add(polarity);
@@ -56,5 +59,32 @@ public class TestdatenEingabe {
 		{
 			System.out.println(array.get(0) + "|" + array.get(1) + "|" + array.get(2));
 		}
+	}
+	
+	/*
+	 * Berechnet die Häufigkeit des Vorkommens eines gegebenen Wortes,
+	 * gruppiert nach der Polarität.
+	 * 
+	 * Verwendet von Maik zum Testen. Hat ansonsten keine sinnvolle Funktionalität.
+	 */
+	public void calcTermPolarityCounts(String word)
+	{
+		int positiveCounter = 0;
+		int negativeCounter = 0;
+		int neutralCounter = 0;
+		
+		for(ArrayList<String> array : testData)
+		{
+			if(array.get(2).toLowerCase().contains(word.toLowerCase()))
+			{
+				if(array.get(0).equals(positivePolarity)) positiveCounter++;
+				else if(array.get(0).equals(negativePolarity)) negativeCounter++;
+				else if(array.get(0).equals(neutralPolarity)) neutralCounter++;
+			}
+		}
+		
+		System.out.println(positiveCounter);
+		System.out.println(negativeCounter);
+		System.out.println(neutralCounter);
 	}
 }

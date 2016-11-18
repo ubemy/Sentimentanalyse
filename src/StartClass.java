@@ -7,6 +7,7 @@ public class StartClass {
 		TestdatenEingabe te = new TestdatenEingabe();
 		te.getTestData();
 		te.printTestData();
+		te.calcTermPolarityCounts(" die ");
 	}
 
 }
