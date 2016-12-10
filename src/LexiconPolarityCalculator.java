@@ -7,21 +7,59 @@ import com.sun.javafx.scene.layout.region.Margins.Converter;
  */
 public class LexiconPolarityCalculator {
 	/*
+	 * Polarität für ein Dokument ermitteln
+	 */
+	public double getPolarityForDocument(ArrayList<String> document)
+	{
+		double ret = 0;
+		int sentenceCounter = 0;
+		double temp = 0;
+		double temp2 = 0;
+		
+		for(String s : document)
+		{
+			temp2 = getPolarityForSentence(s);
+			if(temp2 != 0.0)
+			{
+				temp += temp2;
+				sentenceCounter++;
+			}
+		}
+		
+		ret = temp/sentenceCounter;
+		
+		return ret;
+	}
+	
+	/*
 	 * Polarität für einen Satz ermitteln
 	 */
-	public int getPolarityForSentence(String sentence)
+	public double getPolarityForSentence(String sentence)
 	{
-		int ret = 0;
+		double ret = 0;
 		int wordCounter = 0;
-		int temp = 0;
+		double temp = 0;
+		double temp2 = 0;
 		
 		for(String s : sentence.split(" "))
 		{
-			temp += getPolarityForWord(s);
-			wordCounter++;
+			temp2 = getPolarityForWord(s);
+			if(temp2 != 0.0)
+			{
+				temp += temp2;
+				wordCounter++;
+			}
 		}
 		
-		ret = temp / wordCounter;
+		if(temp == 0.0){ 
+			ret = temp;
+		}
+		else {
+			ret = temp / wordCounter;
+		}
+		
+		System.out.println(sentence);
+		System.out.println(ret);
 		
 		return ret;
 	}
