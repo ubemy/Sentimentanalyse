@@ -14,6 +14,9 @@ public class UnclassifiedData {
 		return this.listEntry;
 	}
 	
+	/*
+	 * Datei einlesen
+	 */
 	public void readFiles()
 	{
 		File f = new File(unclassifiedFile);
