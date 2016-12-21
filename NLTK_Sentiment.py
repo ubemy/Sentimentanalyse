@@ -7,6 +7,11 @@ from nltk.corpus import subjectivity
 import os
 import codecs
 
+#Quellen:
+#http://www.laurentluce.com/posts/twitter-sentiment-analysis-using-python-and-nltk/
+#http://www.nltk.org/book/ch01.html
+#https://www.ravikiranj.net/posts/2012/code/how-build-twitter-sentiment-analyzer/
+
 testDataDirs = []
 testDataDirs.append("Testdaten\\positive")
 testDataDirs.append("Testdaten\\negative")
@@ -14,20 +19,16 @@ testDataCategories = []
 testDataCategories.append("+")
 testDataCategories.append("-")
 
-
-
-
 allWords = []
 
 stop_words = set(stopwords.words('german'))
 neutral_words = []
 
-
 def removeUnwantedWords(word):
     returnValue = True
-    if len(word) < 2: returnValue = False
+    if len(word) < 3: returnValue = False
     elif word in stop_words: returnValue = False
-    elif word in neutral_words: returnValue = False
+    #elif word in neutral_words: returnValue = False
     return returnValue
 
 # Trainingsdaten einlesen
@@ -45,24 +46,26 @@ def readFilesInCategory():
             tokens = word_tokenize(f.read())
             lower_tokens = []
             for token in tokens:
-                lowerToken = token.lower()
-                allWords.append(lowerToken)
-                if(removeUnwantedWords(lowerToken)):
+                if removeUnwantedWords(token):
+                    lowerToken = token.lower()
                     lower_tokens.append(lowerToken)
-            sentences.append(lower_tokens)
+                    allWords.append(lowerToken)
+            lower_tokens.append(category)
+            sentences.append(lower_tokens[:-2])
             categories.append(category)
             f.close()
     return list(zip(sentences,categories))
 
 def getFeatures(sentence):
-    #Die 2000 am häufigsten vorkommenden Wörter
+    #Die 500 am häufigsten vorkommenden Wörter
+    word_features = []
     all_words = nltk.FreqDist(allWords)
-    word_features = list(all_words)[:500]
+    for word, frequency in all_words.most_common(500):
+        word_features.append(word)
     sentenceWords = set(sentence)
-    print(sentenceWords)
     features = {}
     for word in word_features:
-        features["contains(%s)" % word] = (word in sentenceWords)
+        features["contains(%s)" % word] = (word.lower() in sentenceWords)
     return features
 
 def readNeutralWords():
@@ -78,32 +81,25 @@ def readNeutralWords():
 
 def main():
     readNeutralWords()
-    
     sentences = readFilesInCategory()
     random.shuffle(sentences)
     
-    train_docs = sentences[:435]
-    test_docs = sentences[435:]
+    train_docs = sentences
 
-    sentim_analyzer = SentimentAnalyzer()
-    sentim_analyzer.add_feat_extractor(getFeatures)
-    training_set = sentim_analyzer.apply_features(train_docs, labeled=True)
-    print(training_set)
-    test_set = sentim_analyzer.apply_features(test_docs, labeled=True)
+    all_words = nltk.FreqDist(allWords)
 
-    trainer = nltk.NaiveBayesClassifier.train
-    classifier = sentim_analyzer.train(trainer, training_set)
+    training_set = nltk.classify.apply_features(getFeatures, train_docs)
+    
+    classifier = nltk.NaiveBayesClassifier.train(training_set)
     classifier.show_most_informative_features(10)
 
-    for key,value in sorted(sentim_analyzer.evaluate(test_set, f_measure=False, recall=False).items()):
-        print('{0}: {1}'.format(key, value))	
-        	
-    print("Classifying: 'Positiv ist, das gleich Feierabend ist!'", sentim_analyzer.classify('Positiv ist, das gleich Feierabend ist!'.split()))
-    print("Classifying: 'Gutes Wetter ist selten geworden.'", sentim_analyzer.classify('Gutes Wetter ist selten geworden.'))
-    print("Classifying: 'Zu den negativen Folgen von zu schnellem Fahren gehört unter anderem eine Verminderung des Geschwindigkeitsgefühls.'", sentim_analyzer.classify('Die negativen Folgen von zu schnellem Fahren ist unter anderem eine Verminderung des Geschwindigkeitsgefühls.'))
-    print("Classifying: 'Das Beste vom Besten reicht für eine erstklassige Bewertung in den schönsten Gegenden der Welt'", sentim_analyzer.classify('Das Beste vom Besten reicht für eine erstklassige Bewertung in den schönsten Gegenden der Welt'))
-    print("Classifying: 'Die Vorlesungen ist um 8:00.'", sentim_analyzer.classify('Die Vorlesungen ist um 8:00.'))
-    print(sentim_analyzer.classify('sehr'))
-
+    #Zu Klassifizieren:
+    #classifier.classify(getFeatures('<SENTENCE_TO_CLASSIFY'.lower().split()))
+    print("Classifying: 'Positiv ist, das gleich Feierabend ist!'", classifier.classify(getFeatures('Positiv ist, das gleich Feierabend ist!'.lower().split())))
+    print("Classifying: 'Gutes Wetter ist selten geworden.'", classifier.classify(getFeatures('Gutes Wetter ist selten geworden.'.lower().split())))
+    print("Classifying: 'Zu den negativen Folgen von zu schnellem Fahren gehört unter anderem eine Verminderung des Geschwindigkeitsgefühls.'", classifier.classify(getFeatures('Die negativen Folgen von zu schnellem Fahren ist unter anderem eine Verminderung des Geschwindigkeitsgefühls.'.lower().split())))
+    print("Classifying: 'Das Beste vom Besten reicht für eine erstklassige Bewertung in den schönsten Gegenden der Welt'", classifier.classify(getFeatures('Das Beste vom Besten reicht für eine erstklassige Bewertung in den schönsten Gegenden der Welt'.lower().split())))
+    print("Classifying: 'Die Vorlesungen ist um 8:00. prozent'", classifier.classify(getFeatures('Die Vorlesungen ist um 8:00.'.lower().split())))
+    
 if __name__ == "__main__":
     main()
